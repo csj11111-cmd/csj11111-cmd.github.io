@@ -1,0 +1,87 @@
+name: Update cameras.json (delta)
+
+on:
+  # NOTE: schedule disabled until KMA_API_KEY/KMA_API_URL secrets are confirmed.
+  # Re-enable by uncommenting:
+  #   schedule:
+  #     - cron: '0 18 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Snapshot previous cameras.json count
+        id: prev
+        run: |
+          if [ -f cameras.json ]; then
+            prev=$(python -c "import json; print(json.load(open('cameras.json'))['_count'])" 2>/dev/null || echo 0)
+          else
+            prev=0
+          fi
+          echo "count=$prev" >> "$GITHUB_OUTPUT"
+
+      - name: Build cameras.json (OSM + OpenAPI)
+        env:
+          KMA_API_KEY: ${{ secrets.KMA_API_KEY }}
+          KMA_API_URL: ${{ secrets.KMA_API_URL }}
+        run: |
+          python scripts/build_cameras.py --out cameras.json
+          new=$(python -c "import json; print(json.load(open('cameras.json'))['_count'])")
+          echo "New total: $new (was ${{ steps.prev.outputs.count }})"
+
+      - name: Compute diff
+        id: diff
+        run: |
+          set +e
+          python <<'PY' >> "$GITHUB_OUTPUT"
+          import json, subprocess, os
+          # Use git to fetch the previous version of cameras.json
+          try:
+              old_blob = subprocess.check_output(
+                  ["git", "show", "HEAD:cameras.json"], stderr=subprocess.DEVNULL
+              )
+              old = {c["id"]: c for c in json.loads(old_blob)["cameras"]}
+          except Exception:
+              old = {}
+          new = {c["id"]: c for c in json.load(open("cameras.json"))["cameras"]}
+          added   = [c for cid, c in new.items() if cid not in old]
+          removed = [c for cid, c in old.items() if cid not in new]
+          changed = [c for cid, c in new.items()
+                     if cid in old and (c.get("limitKmh") != old[cid].get("limitKmh")
+                                        or abs(c.get("lat",0) - old[cid].get("lat",0)) > 1e-5
+                                        or abs(c.get("lon",0) - old[cid].get("lon",0)) > 1e-5)]
+          print(f"added={len(added)}")
+          print(f"removed={len(removed)}")
+          print(f"changed={len(changed)}")
+          # Write a summary diff for the commit body
+          with open("/tmp/diff.md", "w", encoding="utf-8") as f:
+              f.write(f"신규 {len(added)}개 / 변경 {len(changed)}개 / 삭제 {len(removed)}개\n\n")
+              if added:
+                  f.write("신규 카메라 (최대 30개):\n")
+                  for c in added[:30]:
+                      f.write(f" - {c.get('name','')} ({c.get('lat'):.4f}, {c.get('lon'):.4f}) {c.get('limitKmh')}km/h\n")
+          PY
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet --exit-code -- cameras.json; then
+            echo "No changes."
+          else
+            git config user.name  "drivecluster-bot"
+            git config user.email "drivecluster-bot@users.noreply.github.com"
+            git add cameras.json
+            BODY=""
+            [ -f /tmp/diff.md ] && BODY=$(cat /tmp/diff.md)
+            git commit -m "chore(cameras): weekly auto-update" -m "$BODY"
+            git push
+          fi
