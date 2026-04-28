@@ -1,0 +1,5 @@
+# Allow Jekyll to publish files/folders starting with a dot.
+# Required so /.well-known/ is served (Tesla Fleet API verification).
+include:
+  - ".well-known"
+
