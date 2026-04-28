@@ -1,10 +1,10 @@
 name: Update cameras.json (delta)
 
 on:
-  # NOTE: schedule disabled until KMA_API_KEY/KMA_API_URL secrets are confirmed.
-  # Re-enable by uncommenting:
-  #   schedule:
-  #     - cron: '0 18 * * 0'
+   NOTE: schedule disabled until KMA_API_KEY/KMA_API_URL secrets are confirmed.
+   Re-enable by uncommenting:
+     schedule:
+       - cron: '0 18 * * 0'
   workflow_dispatch: {}
 
 permissions:
