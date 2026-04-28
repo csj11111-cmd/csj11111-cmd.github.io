@@ -1,0 +1,13 @@
+{
+  "_comment": "한국 과속 단속카메라 데이터셋. heading은 단속 방향(0=북, 90=동, 180=남, 270=서, null=양방향). 공공데이터포털의 '전국과속단속카메라표준데이터'에서 채워 넣어 쓸 것.",
+  "_version": 1,
+  "_updatedAt": "2026-04-28",
+  "cameras": [
+    { "id": "kr-seo-gangbyeon-001", "name": "강변북로 잠실대교 부근", "lat": 37.5176, "lon": 127.0871, "limitKmh": 80, "heading": null },
+    { "id": "kr-seo-olympic-002",   "name": "올림픽대로 잠실 부근",   "lat": 37.5145, "lon": 127.0850, "limitKmh": 80, "heading": null },
+    { "id": "kr-seo-naebu-003",     "name": "내부순환 성동JC 부근",  "lat": 37.5631, "lon": 127.0516, "limitKmh": 80, "heading": null },
+    { "id": "kr-seo-bukbu-004",     "name": "북부간선 월계 부근",    "lat": 37.6244, "lon": 127.0570, "limitKmh": 80, "heading": null },
+    { "id": "kr-seo-dongbu-005",    "name": "동부간선 군자 부근",    "lat": 37.5500, "lon": 127.0760, "limitKmh": 80, "heading": null },
+    { "id": "kr-seo-test-001",      "name": "테스트 (서울시청)",     "lat": 37.5665, "lon": 126.9780, "limitKmh": 60, "heading": null }
+  ]
+}
