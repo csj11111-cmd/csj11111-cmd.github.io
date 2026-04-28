@@ -95,12 +95,21 @@ def fetch_kma_api(service_key: str, dataset_url: str = "") -> list[dict]:
     while True:
         url = (f"{dataset_url}?serviceKey={urllib.parse.quote(service_key, safe='')}"
                f"&pageNo={page}&numOfRows={per}&type=json")
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "DriveCluster/1.0", "Accept": "application/json"})
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                payload = json.load(resp)
-        except Exception as e:
-            print(f"OpenAPI page {page} failed: {e}", file=sys.stderr)
+        payload = None
+        last_err = None
+        for attempt in range(5):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "DriveCluster/1.0", "Accept": "application/json"})
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    payload = json.load(resp)
+                break
+            except Exception as e:
+                last_err = e
+                wait = 2 ** attempt
+                print(f"OpenAPI page {page} attempt {attempt+1} failed: {e}, retry in {wait}s", file=sys.stderr)
+                __import__('time').sleep(wait)
+        if payload is None:
+            print(f"OpenAPI page {page} gave up after retries: {last_err}", file=sys.stderr)
             break
         body = (payload.get("response") or {}).get("body") or {}
         items = body.get("items") or []

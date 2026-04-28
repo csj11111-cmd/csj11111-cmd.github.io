@@ -18,11 +18,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Build cameras.json
+      - name: Build cameras.json (to staging file)
         env:
           KMA_API_KEY: ${{ secrets.KMA_API_KEY }}
           KMA_API_URL: ${{ secrets.KMA_API_URL }}
-        run: python scripts/build_cameras.py --out cameras.json
+        run: python scripts/build_cameras.py --out cameras.json.new
+
+      - name: Sanity check (refuse big shrink)
+        run: |
+          OLD=$(python -c "import json; print(json.load(open('cameras.json'))['_count'])" 2>/dev/null || echo 0)
+          NEW=$(python -c "import json; print(json.load(open('cameras.json.new'))['_count'])")
+          echo "Old: $OLD,  New: $NEW"
+          if [ "$OLD" -gt 0 ] && [ "$NEW" -lt $((OLD / 2)) ]; then
+            echo "::error ::New file ($NEW) is less than half of previous ($OLD). Aborting (data source likely failed)."
+            exit 1
+          fi
+          mv cameras.json.new cameras.json
 
       - name: Commit if changed
         run: |
