@@ -1,8 +1,8 @@
 {
   "_comment": "한국 과속 단속카메라. OSM(Overpass) + (있으면) 공공데이터포털 표준데이터셋. 30m 이내 중복 제거. heading=null이면 양방향.",
   "_version": 2,
-  "_updatedAt": "2026-05-17T19:46:24Z",
-  "_count": 35374,
+  "_updatedAt": "2026-05-24T20:03:31Z",
+  "_count": 35373,
   "cameras": [
     {
       "id": "osm-426563863",
@@ -2320,8 +2320,8 @@
     {
       "id": "osm-8288734956",
       "name": "OSM 단속카메라",
-      "lat": 36.9223782,
-      "lon": 127.2353828,
+      "lat": 36.9223111,
+      "lon": 127.2353251,
       "limitKmh": 70,
       "heading": 25.0,
       "source": "osm"
@@ -2446,8 +2446,8 @@
     {
       "id": "osm-8289481000",
       "name": "OSM 단속카메라",
-      "lat": 37.0331588,
-      "lon": 127.1152926,
+      "lat": 37.0331277,
+      "lon": 127.1153386,
       "limitKmh": 100,
       "heading": 100.0,
       "source": "osm"
@@ -2466,7 +2466,7 @@
       "name": "OSM 단속카메라",
       "lat": 36.9358729,
       "lon": 127.2402334,
-      "limitKmh": 80,
+      "limitKmh": 70,
       "heading": -150.0,
       "source": "osm"
     },
@@ -196390,15 +196390,6 @@
       "lat": 36.8626495,
       "lon": 127.1502758,
       "limitKmh": 60,
-      "heading": null,
-      "source": "kma_api"
-    },
-    {
-      "id": "kma-api-G2918",
-      "name": "입장교차로",
-      "lat": 36.9221001,
-      "lon": 127.2353001,
-      "limitKmh": 70,
       "heading": null,
       "source": "kma_api"
     },
